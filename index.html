@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Biochemie-Quiz · Start</title>
+  <meta name="description" content="Startseite: Anleitung zum Biochemie-Quiz und Formular für Fragenbeiträge." />
+  <style>
+    :root{
+      --uoc-blue:#004b8d; --bg:#0b1220; --panel:#0f172a; --text:#e5e7eb; --muted:#94a3b8; --accent:#22d3ee;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 80% -10%, #10233d 0%, transparent 60%),
+                  linear-gradient(180deg,#020617 0%, #0b1220 50%, #020617 100%);
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .wrap{max-width:900px; width:100%}
+    header{
+      text-align:center; padding:18px 14px 8px; background:transparent;
+    }
+    h1{margin:0 0 6px; font-size:clamp(22px,4vw,36px); letter-spacing:.2px}
+    p.subtitle{margin:0; color:var(--muted); font-size:clamp(14px,2vw,16px)}
+    .grid{
+      display:grid; gap:16px; margin:22px auto; padding:8px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .card{
+      background: linear-gradient(180deg,var(--panel), #0b1424);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px; padding:18px; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      display:flex; flex-direction:column; justify-content:space-between; min-height:170px;
+    }
+    .card h2{margin:4px 0 10px; font-size:20px}
+    .card p{margin:0 0 14px; color:var(--muted); line-height:1.4}
+    .btn{
+      display:inline-block; text-decoration:none; text-align:center; font-weight:600;
+      padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, var(--uoc-blue), #0d5fae);
+      color:#fff; transition: transform .06s ease, box-shadow .15s ease, opacity .15s ease;
+    }
+    .btn:hover{transform: translateY(-1px); box-shadow:0 8px 22px rgba(0,0,0,.3)}
+    .btn:active{transform: translateY(0)}
+    footer{
+      margin-top:8px; text-align:center; color:var(--muted); font-size:12px; opacity:.9;
+    }
+    .badges{display:flex; gap:8px; justify-content:center; margin-top:8px}
+    .badge{
+      font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.1);
+      color:var(--muted); background:rgba(255,255,255,.03)
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Biochemie-Quiz · Start</h1>
+      <p class="subtitle">Anleitung &nbsp;•&nbsp; Fragen einreichen &nbsp;•&nbsp; OER (CC-BY 4.0)</p>
+      <div class="badges">
+        <span class="badge">Uni Köln</span>
+        <span class="badge">ILIAS/Edulabs kompatibel</span>
+        <span class="badge">HTML • offline</span>
+      </div>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h2>📘 Anleitung zum Biochemie-Quiz</h2>
+        <p>Kurze Einführung, Ziele, Bedienung & Tipps für das Lernen mit dem Quiz.</p>
+        <div><a class="btn" href="Anleitung%20BiochemieQuiz.html" target="_blank" rel="noopener">Anleitung öffnen</a></div>
+      </article>
+
+      <article class="card">
+        <h2>📝 Fragenbeiträge einreichen</h2>
+        <p>Formular für Studierende: eigene Fragen nach Schema eingeben & einreichen.</p>
+        <div><a class="btn" href="Fragenbeiträge.html" target="_blank" rel="noopener">Formular öffnen</a></div>
+      </article>
+    </section>
+
+    <footer>
+      Autor: T. Riyahi & ChatGPT-5 • Lizenz: CC-BY 4.0
+    </footer>
+  </div>
+</body>
+</html>
