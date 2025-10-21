@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eure Fragen für das Biochemie Quiz (offline)</title>
+  <style>
+    :root{--bg:#0f172a;--panel:#111827;--muted:#9aa4b2;--text:#e5e7eb;--ok:#16a34a;--warn:#f59e0b;--err:#ef4444;--accent:#22d3ee;--card:#0b1220}
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(1000px 500px at 90% -10%,#0b1d36,transparent),linear-gradient(180deg,#020617,#0b1220 55%,#020617);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,sans-serif;min-height:100vh}
+    header{padding:24px 16px 8px;text-align:center}
+    h1{margin:0;font-size:clamp(22px,3.2vw,30px)}
+    p.lead{margin:6px 0 0;color:var(--muted)}
+    main{max-width:980px;margin:18px auto;padding:0 16px 80px}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    @media(min-width:840px){.grid{grid-template-columns:1fr 1fr}}
+    fieldset{border:1px solid #1f2937;border-radius:14px;padding:14px;background:linear-gradient(180deg,#0b1220,#0a1222)}
+    legend{padding:0 8px;color:#c7d2fe}
+    label{display:block;font-size:14px;margin:8px 0 6px;color:#cbd5e1}
+    input[type="text"], textarea, select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #233044;background:#0b1424;color:var(--text)}
+    textarea{min-height:96px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+    .hint{font-size:12px;color:var(--muted)}
+    .btnbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    button{border:1px solid #1f2937;background:#0b1424;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}
+    button.primary{background:linear-gradient(180deg,#0f766e,#0b766f);border-color:#0e7490}
+    button.success{background:linear-gradient(180deg,#166534,#14532d);border-color:#15803d}
+    button.warn{background:linear-gradient(180deg,#92400e,#7c2d12);border-color:#b45309}
+    button:focus{outline:2px solid var(--accent);outline-offset:2px}
+    .panel{border:1px solid #1f2937;border-radius:14px;background:linear-gradient(180deg,#0b1220,#0a1324);padding:14px}
+    .code{white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;background:#0a0f1e;border:1px solid #1f2937;border-radius:10px;padding:12px;overflow:auto}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #1f2937;background:#0b1424;color:#cbd5e1;font-size:12px}
+    .badge-ok{color:#bbf7d0;border-color:#166534}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{border:1px dashed #223048;border-radius:12px;padding:10px}
+    footer{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:linear-gradient(180deg,rgba(4,6,12,.0),rgba(4,6,12,.7));backdrop-filter:saturate(130%) blur(6px);border-top:1px solid #1f2937}
+    .foot{max-width:980px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Fragen-Einreichung – Biochemie Quiz</h1>
+    <p class="lead">Formular ausfüllen → Vorschau → Kopieren oder als JSON herunterladen und im Ordner "Eure Quizfragen" hinterlegen.</p>
+  </header>
+  <main>
+    <section class="grid" aria-label="Eingabeformular und Vorschau">
+      <!-- Formular -->
+      <div>
+        <fieldset>
+          <legend>📝 Eingabe</legend>
+          <label for="author">Autor*in (wird veröffentlicht)</label>
+          <input id="author" type="text" placeholder="Vorname Nachname" autocomplete="name" />
+
+          <label for="topic">Themenbereich</label>
+          <select id="topic">
+            <option value="Aminosäuren und Proteine">Aminosäuren und Proteine</option>
+            <option value="Enzyme">Enzyme</option>
+            <option value="Kohlenhydrate">Kohlenhydrate</option>
+            <option value="Lipide">Lipide</option>
+            <option value="Nukleinsäuren">Nukleinsäuren</option>
+            <option value="Hormone">Hormone</option>
+            <option value="Kompartimente">Kompartimente</option>
+            <option value="Bioenergetik">Bioenergetik</option>
+            <option value="Blut">Blut</option>
+            <option value="Techniken">Techniken</option>
+          </select>
+
+          <label for="question">Frage</label>
+          <textarea id="question" placeholder="Formuliere deine Frage…"></textarea>
+
+          <div class="panel" aria-label="Antwortmöglichkeiten">
+            <div class="row">
+              <label for="opt0">Antwort A (Index 0)</label>
+              <span class="pill">richtige Antwort? <input type="radio" name="correct" value="0" aria-label="Antwort A ist korrekt" /></span>
+            </div>
+            <input id="opt0" type="text" placeholder="Antwort A" />
+
+            <div class="row">
+              <label for="opt1">Antwort B (Index 1)</label>
+              <span class="pill">richtige Antwort? <input type="radio" name="correct" value="1" aria-label="Antwort B ist korrekt" /></span>
+            </div>
+            <input id="opt1" type="text" placeholder="Antwort B" />
+
+            <div class="row">
+              <label for="opt2">Antwort C (Index 2)</label>
+              <span class="pill">richtige Antwort? <input type="radio" name="correct" value="2" aria-label="Antwort C ist korrekt" /></span>
+            </div>
+            <input id="opt2" type="text" placeholder="Antwort C" />
+
+            <div class="row">
+              <label for="opt3">Antwort D (Index 3)</label>
+              <span class="pill">richtige Antwort? <input type="radio" name="correct" value="3" aria-label="Antwort D ist korrekt" /></span>
+            </div>
+            <input id="opt3" type="text" placeholder="Antwort D" />
+          </div>
+
+          <label for="explanation">Kurz-Erklärung (warum ist die richtige Antwort korrekt?)</label>
+          <textarea id="explanation" placeholder="1–3 Sätze, gern mit Stichworten/Begründung…"></textarea>
+
+          <div class="btnbar">
+            <button class="primary" id="previewBtn">Vorschau aktualisieren</button>
+            <button class="success" id="copyBtn">JSON kopieren</button>
+            <button class="success" id="downloadOneBtn" title="Nur diesen Eintrag als Datei speichern">Als JSON speichern</button>
+            <button id="addBatchBtn" title="Zur Sammelliste hinzufügen">Zur Sammelliste</button>
+            <button id="resetBtn" class="warn">Formular leeren</button>
+          </div>
+          <p class="hint">Hinweis: <span class="pill badge-ok">Lizenz: CC BY 4.0</span> • Status wird als <em>proposed</em> gespeichert. Die Frage sollte <strong>eine</strong> richtige Antwort haben.</p>
+          <div aria-live="polite" id="msg" class="hint" style="margin-top:6px"></div>
+        </fieldset>
+      </div>
+
+      <!-- Vorschau -->
+      <div>
+        <fieldset>
+          <legend>👀 Vorschau (JSON)</legend>
+          <div class="code" id="preview">{
+  "id": "pending",
+  "question": "",
+  "options": ["", "", "", ""],
+  "correctIndex": 0,
+  "explanation": "",
+  "author": "",
+  "license": "CC BY 4.0",
+  "status": "proposed",
+  "topic": [""]
+}</div>
+        </fieldset>
+
+        <div class="panel" style="margin-top:12px">
+          <div class="row" style="grid-template-columns:1fr auto">
+            <strong>Sammelliste</strong>
+            <button id="exportBatchBtn" class="primary" title="Alle gesammelten Einträge als eine JSON-Datei exportieren">Sammelliste exportieren</button>
+          </div>
+          <div class="list" id="batchList" aria-live="polite" aria-label="Sammelliste"></div>
+        </div>
+      </div>
+    </section>
+
+  <footer>
+    <div class="foot">
+      <span class="hint">Status: <span id="statusPill" class="pill">bereit</span></span>
+      <div class="btnbar" style="margin:0">
+        <button id="sampleBtn">Beispiel laden</button>
+        <button id="howtoBtn">Beispiel-Erklärung einfügen</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const el = (id)=>document.getElementById(id);
+    const inputs = {
+      author: el('author'),
+      topic: el('topic'),
+      question: el('question'),
+      opt0: el('opt0'),
+      opt1: el('opt1'),
+      opt2: el('opt2'),
+      opt3: el('opt3'),
+      explanation: el('explanation'),
+      correct: ()=>document.querySelector('input[name="correct"]:checked')
+    };
+
+    const msg = el('msg');
+    const preview = el('preview');
+    const statusPill = el('statusPill');
+    const batchList = el('batchList');
+    let batch = [];
+
+    function buildItem(){
+      const options = [inputs.opt0.value.trim(), inputs.opt1.value.trim(), inputs.opt2.value.trim(), inputs.opt3.value.trim()];
+      const correctRadio = inputs.correct();
+      const correctIndex = correctRadio ? parseInt(correctRadio.value,10) : 0;
+      return {
+        id: 'pending',
+        question: inputs.question.value.trim(),
+        options,
+        correctIndex,
+        explanation: inputs.explanation.value.trim(),
+        author: inputs.author.value.trim(),
+        license: 'CC BY 4.0',
+        status: 'proposed',
+        topic: [inputs.topic.value]
+      };
+    }
+
+    function validate(item){
+      const problems = [];
+      if(!item.author) problems.push('Autor*in fehlt');
+      if(!item.question) problems.push('Frage fehlt');
+      if(item.options.some(o=>!o)) problems.push('Alle vier Antworten bitte ausfüllen');
+      const unique = new Set(item.options.map(o=>o.toLowerCase()));
+      if(unique.size < 4) problems.push('Antworten müssen sich unterscheiden');
+      if(item.correctIndex<0 || item.correctIndex>3) problems.push('Bitte richtige Antwort markieren');
+      if(!item.explanation) problems.push('Kurz-Erklärung fehlt');
+      return problems;
+    }
+
+    function showPreview(){
+      const item = buildItem();
+      const problems = validate(item);
+      if(problems.length){
+        msg.textContent = 'Bitte prüfen: ' + problems.join(' • ');
+        statusPill.textContent = 'prüfen';
+        statusPill.className = 'pill';
+      } else {
+        msg.textContent = 'Alles sieht gut aus. Du kannst kopieren oder speichern.';
+        statusPill.textContent = 'ok';
+        statusPill.className = 'pill badge-ok';
+      }
+      preview.textContent = JSON.stringify(item, null, 2);
+    }
+
+    function copyJSON(){
+      navigator.clipboard.writeText(preview.textContent).then(()=>{
+        msg.textContent = 'JSON in die Zwischenablage kopiert.';
+      }).catch(()=>{
+        msg.textContent = 'Kopieren nicht möglich. Bitte manuell markieren und kopieren.';
+      });
+    }
+
+    function download(filename, text){
+      const blob = new Blob([text], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 500);
+    }
+
+    function downloadOne(){
+      try{
+        const item = JSON.parse(preview.textContent);
+        const safeTopic = (item.topic && item.topic[0]) ? item.topic[0] : 'Allgemein';
+        const dt = new Date();
+        const stamp = dt.toISOString().slice(0,10);
+        download(`frage_${safeTopic}_${stamp}.json`, JSON.stringify(item, null, 2));
+        msg.textContent = 'Eintrag als JSON gespeichert.';
+      }catch(e){
+        msg.textContent = 'Vorschau ist ungültig.';
+      }
+    }
+
+    function addToBatch(){
+      const item = buildItem();
+      const problems = validate(item);
+      if(problems.length){
+        msg.textContent = 'Nicht hinzugefügt: ' + problems.join(' • ');
+        return;
+      }
+      batch.push(item);
+      renderBatch();
+      msg.textContent = 'Zur Sammelliste hinzugefügt.';
+    }
+
+    function renderBatch(){
+      batchList.innerHTML = '';
+      batch.forEach((it, idx)=>{
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<div style="display:flex;gap:8px;justify-content:space-between;align-items:center"><strong>#${idx+1}</strong><span class="pill">${it.topic[0]}</span></div>
+        <div class="hint" style="margin-top:6px">${escapeHtml(it.question).slice(0,160)}${it.question.length>160?'…':''}</div>
+        <div class="btnbar" style="margin-top:8px">
+          <button data-act="dl" data-idx="${idx}">Eintrag speichern</button>
+          <button data-act="rm" data-idx="${idx}" class="warn">Entfernen</button>
+        </div>`;
+        batchList.appendChild(div);
+      });
+    }
+
+    function exportBatch(){
+      if(!batch.length){ msg.textContent = 'Sammelliste ist leer.'; return; }
+      const dt = new Date();
+      const stamp = dt.toISOString().slice(0,10).replace(/-/g,'');
+      const payload = { metadata: { exported: dt.toISOString(), count: batch.length, license: 'CC BY 4.0' }, questions: batch };
+      download(`fragen_einreichungen_${stamp}.json`, JSON.stringify(payload, null, 2));
+      msg.textContent = 'Sammelliste als JSON exportiert.';
+    }
+
+    function resetForm(){
+      for(const k of ['author','question','opt0','opt1','opt2','opt3','explanation']) inputs[k].value='';
+      const r = document.querySelector('input[name="correct"]:checked'); if(r) r.checked=false;
+      showPreview();
+    }
+
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+    }
+
+    // Buttons
+    el('previewBtn').addEventListener('click', showPreview);
+    el('copyBtn').addEventListener('click', copyJSON);
+    el('downloadOneBtn').addEventListener('click', downloadOne);
+    el('addBatchBtn').addEventListener('click', addToBatch);
+    el('exportBatchBtn').addEventListener('click', exportBatch);
+    el('resetBtn').addEventListener('click', resetForm);
+
+    // Batch actions (delegate)
+    batchList.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      const idx = parseInt(btn.dataset.idx,10);
+      if(btn.dataset.act==='rm'){ batch.splice(idx,1); renderBatch(); msg.textContent='Eintrag entfernt.'; }
+      if(btn.dataset.act==='dl'){ const it = batch[idx]; download(`frage_${(it.topic&&it.topic[0])||'Allgemein'}.json`, JSON.stringify(it, null, 2)); }
+    });
+
+    // Footer helpers
+    el('sampleBtn').addEventListener('click', ()=>{
+      inputs.author.value = 'DEIN NAME';
+      inputs.topic.value = 'Aminosäuren und Proteine';
+      inputs.question.value = 'Welche Aminosäure bildet Disulfidbrücken in Proteinen?';
+      inputs.opt0.value = 'Methionin';
+      inputs.opt1.value = 'Cystein';
+      inputs.opt2.value = 'Tyrosin';
+      inputs.opt3.value = 'Histidin';
+      document.querySelector('input[name="correct"][value="1"]').checked = true;
+      inputs.explanation.value = 'Cystein kann über seine Thiolgruppe (–SH) Disulfidbindungen bilden, die die Proteinstruktur stabilisieren.';
+      showPreview();
+    });
+
+    el('howtoBtn').addEventListener('click', ()=>{
+      inputs.explanation.value = 'Kurz begründen, warum die korrekte Antwort stimmt (z. B. Mechanismus, Strukturmerkmal, klinischer Bezug). 1–3 Sätze genügen.';
+      showPreview();
+    });
+
+    // Auto‑Preview on input (debounced)
+    let t;
+    document.addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(showPreview, 180); });
+
+    // Init
+    showPreview();
+  </script>
+</body>
+</html>
