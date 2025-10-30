@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Eure Fragen für das Biochemie Quiz (offline)</title>
+  <title>Eure Fragen für das Biochemie Quiz – vereinfacht</title>
   <style>
     :root{--bg:#0f172a;--panel:#111827;--muted:#9aa4b2;--text:#e5e7eb;--ok:#16a34a;--warn:#f59e0b;--err:#ef4444;--accent:#22d3ee;--card:#0b1220}
     *{box-sizing:border-box}
@@ -11,13 +11,13 @@
     header{padding:24px 16px 8px;text-align:center}
     h1{margin:0;font-size:clamp(22px,3.2vw,30px)}
     p.lead{margin:6px 0 0;color:var(--muted)}
-    main{max-width:980px;margin:18px auto;padding:0 16px 80px}
+    main{max-width:980px;margin:18px auto;padding:0 16px 120px}
     .grid{display:grid;grid-template-columns:1fr;gap:14px}
-    @media(min-width:840px){.grid{grid-template-columns:1fr 1fr}}
+    @media(min-width:880px){.grid{grid-template-columns:1fr 1fr}}
     fieldset{border:1px solid #1f2937;border-radius:14px;padding:14px;background:linear-gradient(180deg,#0b1220,#0a1222)}
     legend{padding:0 8px;color:#c7d2fe}
-    label{display:block;font-size:14px;margin:8px 0 6px;color:#cbd5e1}
-    input[type="text"], textarea, select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #233044;background:#0b1424;color:var(--text)}
+    label{display:block;font-size:14px;margin:10px 0 6px;color:#cbd5e1}
+    input[type="text"], textarea, select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #233044;background:#0b1424;color:var(--text);transition:border-color .15s ease}
     textarea{min-height:96px;resize:vertical}
     .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
     .hint{font-size:12px;color:var(--muted)}
@@ -26,6 +26,7 @@
     button.primary{background:linear-gradient(180deg,#0f766e,#0b766f);border-color:#0e7490}
     button.success{background:linear-gradient(180deg,#166534,#14532d);border-color:#15803d}
     button.warn{background:linear-gradient(180deg,#92400e,#7c2d12);border-color:#b45309}
+    button:disabled{opacity:.5;cursor:not-allowed}
     button:focus{outline:2px solid var(--accent);outline-offset:2px}
     .panel{border:1px solid #1f2937;border-radius:14px;background:linear-gradient(180deg,#0b1220,#0a1324);padding:14px}
     .code{white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;background:#0a0f1e;border:1px solid #1f2937;border-radius:10px;padding:12px;overflow:auto}
@@ -36,12 +37,23 @@
     .item{border:1px dashed #223048;border-radius:12px;padding:10px}
     footer{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:linear-gradient(180deg,rgba(4,6,12,.0),rgba(4,6,12,.7));backdrop-filter:saturate(130%) blur(6px);border-top:1px solid #1f2937}
     .foot{max-width:980px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+
+    /* Prominentes Fehler-UI */
+    .err{font-size:12px;color:var(--err);margin-top:4px;min-height:14px}
+    .invalid{border-color:var(--err) !important}
+    .summary{margin-top:8px;border:1px solid #40232b;background:linear-gradient(180deg,#1a0c0f,#170e14);border-radius:10px;padding:10px;color:#fecaca}
+    .summary h4{margin:0 0 6px;font-size:13px;color:#fecaca}
+    .summary ul{margin:0;padding-left:18px}
+    .summary li{margin:4px 0}
+    .okbar{display:flex;gap:8px;align-items:center}
+    .okdot{width:10px;height:10px;border-radius:50%;background:var(--ok)}
+    .muted-link{background:none;border:none;color:#a7f3d0;text-decoration:underline;padding:0;cursor:pointer}
   </style>
 </head>
 <body>
   <header>
     <h1>Fragen-Einreichung – Biochemie Quiz</h1>
-    <p class="lead">Formular ausfüllen → Vorschau → Kopieren oder als JSON herunterladen und im Ordner "Eure Quizfragen" hinterlegen.</p>
+    <p class="lead">Fülle das Formular aus. Die Vorschau aktualisiert sich automatisch. Speichern ist erst möglich, wenn alles passt.</p>
   </header>
   <main>
     <section class="grid" aria-label="Eingabeformular und Vorschau">
@@ -49,8 +61,10 @@
       <div>
         <fieldset>
           <legend>📝 Eingabe</legend>
+
           <label for="author">Autor*in (wird veröffentlicht)</label>
           <input id="author" type="text" placeholder="Vorname Nachname" autocomplete="name" />
+          <div id="err-author" class="err"></div>
 
           <label for="topic">Themenbereich</label>
           <select id="topic">
@@ -68,44 +82,55 @@
 
           <label for="question">Frage</label>
           <textarea id="question" placeholder="Formuliere deine Frage…"></textarea>
+          <div id="err-question" class="err"></div>
 
           <div class="panel" aria-label="Antwortmöglichkeiten">
             <div class="row">
               <label for="opt0">Antwort A (Index 0)</label>
-              <span class="pill">richtige Antwort? <input type="radio" name="correct" value="0" aria-label="Antwort A ist korrekt" /></span>
+              <span class="pill">richtig? <input type="radio" name="correct" value="0" aria-label="Antwort A ist korrekt" /></span>
             </div>
             <input id="opt0" type="text" placeholder="Antwort A" />
+            <div id="err-opt0" class="err"></div>
 
             <div class="row">
               <label for="opt1">Antwort B (Index 1)</label>
-              <span class="pill">richtige Antwort? <input type="radio" name="correct" value="1" aria-label="Antwort B ist korrekt" /></span>
+              <span class="pill">richtig? <input type="radio" name="correct" value="1" aria-label="Antwort B ist korrekt" /></span>
             </div>
             <input id="opt1" type="text" placeholder="Antwort B" />
+            <div id="err-opt1" class="err"></div>
 
             <div class="row">
               <label for="opt2">Antwort C (Index 2)</label>
-              <span class="pill">richtige Antwort? <input type="radio" name="correct" value="2" aria-label="Antwort C ist korrekt" /></span>
+              <span class="pill">richtig? <input type="radio" name="correct" value="2" aria-label="Antwort C ist korrekt" /></span>
             </div>
             <input id="opt2" type="text" placeholder="Antwort C" />
+            <div id="err-opt2" class="err"></div>
 
             <div class="row">
               <label for="opt3">Antwort D (Index 3)</label>
-              <span class="pill">richtige Antwort? <input type="radio" name="correct" value="3" aria-label="Antwort D ist korrekt" /></span>
+              <span class="pill">richtig? <input type="radio" name="correct" value="3" aria-label="Antwort D ist korrekt" /></span>
             </div>
             <input id="opt3" type="text" placeholder="Antwort D" />
+            <div id="err-opt3" class="err"></div>
+
+            <div id="err-correct" class="err"></div>
           </div>
 
           <label for="explanation">Kurz-Erklärung (warum ist die richtige Antwort korrekt?)</label>
           <textarea id="explanation" placeholder="1–3 Sätze, gern mit Stichworten/Begründung…"></textarea>
+          <div id="err-explanation" class="err"></div>
+
+          <div id="errorSummary" class="summary" style="display:none">
+            <h4>Bitte noch ergänzen/prüfen:</h4>
+            <ul id="errorList"></ul>
+          </div>
 
           <div class="btnbar">
-            <button class="primary" id="previewBtn">Vorschau aktualisieren</button>
-            <button class="success" id="copyBtn">JSON kopieren</button>
-            <button class="success" id="downloadOneBtn" title="Nur diesen Eintrag als Datei speichern">Als JSON speichern</button>
-            <button id="addBatchBtn" title="Zur Sammelliste hinzufügen">Zur Sammelliste</button>
+            <button class="primary" id="saveBtn" disabled>Als JSON speichern</button>
+            <button id="addBatchBtn" title="Zur Sammelliste hinzufügen" disabled>Zur Sammelliste</button>
             <button id="resetBtn" class="warn">Formular leeren</button>
           </div>
-          <p class="hint">Hinweis: <span class="pill badge-ok">Lizenz: CC BY 4.0</span> • Status wird als <em>proposed</em> gespeichert. Die Frage sollte <strong>eine</strong> richtige Antwort haben.</p>
+          <p class="hint">Hinweis: <span class="pill badge-ok">Lizenz: CC BY 4.0</span> • Status wird als <em>proposed</em> gespeichert. Die Frage sollte <strong>eine</strong> richtige Antwort haben. <button id="copyBtn" class="muted-link" title="JSON in Zwischenablage kopieren">JSON kopieren</button></p>
           <div aria-live="polite" id="msg" class="hint" style="margin-top:6px"></div>
         </fieldset>
       </div>
@@ -113,7 +138,8 @@
       <!-- Vorschau -->
       <div>
         <fieldset>
-          <legend>👀 Vorschau (JSON)</legend>
+          <legend>👀 Vorschau (JSON – aktualisiert sich automatisch)</legend>
+          <div class="okbar" id="okbar" style="display:none;margin-bottom:8px"><span class="okdot"></span><span class="hint">Alles okay – du kannst speichern.</span></div>
           <div class="code" id="preview">{
   "id": "pending",
   "question": "",
@@ -130,16 +156,17 @@
         <div class="panel" style="margin-top:12px">
           <div class="row" style="grid-template-columns:1fr auto">
             <strong>Sammelliste</strong>
-            <button id="exportBatchBtn" class="primary" title="Alle gesammelten Einträge als eine JSON-Datei exportieren">Sammelliste exportieren</button>
+            <button id="exportBatchBtn" class="success" title="Alle gesammelten Einträge als eine JSON-Datei exportieren">Sammelliste exportieren</button>
           </div>
           <div class="list" id="batchList" aria-live="polite" aria-label="Sammelliste"></div>
         </div>
       </div>
     </section>
+  </main>
 
   <footer>
     <div class="foot">
-      <span class="hint">Status: <span id="statusPill" class="pill">bereit</span></span>
+      <span class="hint">Status: <span id="statusPill" class="pill">prüfen…</span></span>
       <div class="btnbar" style="margin:0">
         <button id="sampleBtn">Beispiel laden</button>
         <button id="howtoBtn">Beispiel-Erklärung einfügen</button>
@@ -164,13 +191,17 @@
     const msg = el('msg');
     const preview = el('preview');
     const statusPill = el('statusPill');
+    const okbar = el('okbar');
     const batchList = el('batchList');
+    const errorSummary = el('errorSummary');
+    const errorList = el('errorList');
+
     let batch = [];
 
     function buildItem(){
       const options = [inputs.opt0.value.trim(), inputs.opt1.value.trim(), inputs.opt2.value.trim(), inputs.opt3.value.trim()];
       const correctRadio = inputs.correct();
-      const correctIndex = correctRadio ? parseInt(correctRadio.value,10) : 0;
+      const correctIndex = correctRadio ? parseInt(correctRadio.value,10) : -1;
       return {
         id: 'pending',
         question: inputs.question.value.trim(),
@@ -184,39 +215,79 @@
       };
     }
 
+    function setFieldState(inputEl, ok, errId, message){
+      const err = el(errId);
+      if(ok){
+        inputEl && inputEl.classList.remove('invalid');
+        if(err) err.textContent = '';
+      }else{
+        inputEl && inputEl.classList.add('invalid');
+        if(err) err.textContent = message;
+      }
+    }
+
     function validate(item){
       const problems = [];
-      if(!item.author) problems.push('Autor*in fehlt');
-      if(!item.question) problems.push('Frage fehlt');
-      if(item.options.some(o=>!o)) problems.push('Alle vier Antworten bitte ausfüllen');
-      const unique = new Set(item.options.map(o=>o.toLowerCase()));
-      if(unique.size < 4) problems.push('Antworten müssen sich unterscheiden');
-      if(item.correctIndex<0 || item.correctIndex>3) problems.push('Bitte richtige Antwort markieren');
-      if(!item.explanation) problems.push('Kurz-Erklärung fehlt');
+
+      // Author
+      const authorOk = !!item.author;
+      setFieldState(inputs.author, authorOk, 'err-author', authorOk ? '' : 'Bitte Autor*in eintragen.');
+      if(!authorOk) problems.push('Autor*in fehlt');
+
+      // Question
+      const qOk = !!item.question;
+      setFieldState(inputs.question, qOk, 'err-question', qOk ? '' : 'Frage fehlt.');
+      if(!qOk) problems.push('Frage fehlt');
+
+      // Options present & distinct
+      const optOk = item.options.every(o=>!!o);
+      const distinct = new Set(item.options.map(o=>o.toLowerCase())).size === 4;
+      setFieldState(inputs.opt0, optOk, 'err-opt0', item.options[0] ? '' : 'Antwort A fehlt.');
+      setFieldState(inputs.opt1, optOk, 'err-opt1', item.options[1] ? '' : 'Antwort B fehlt.');
+      setFieldState(inputs.opt2, optOk, 'err-opt2', item.options[2] ? '' : 'Antwort C fehlt.');
+      setFieldState(inputs.opt3, optOk, 'err-opt3', item.options[3] ? '' : 'Antwort D fehlt.');
+      if(!optOk) problems.push('Alle vier Antworten ausfüllen');
+      if(optOk && !distinct){ problems.push('Antworten müssen sich unterscheiden'); inputs.opt0.classList.add('invalid'); inputs.opt1.classList.add('invalid'); inputs.opt2.classList.add('invalid'); inputs.opt3.classList.add('invalid'); }
+
+      // Correct index
+      const corrOk = item.correctIndex>=0 && item.correctIndex<=3;
+      setFieldState(null, corrOk, 'err-correct', corrOk ? '' : 'Bitte eine richtige Antwort markieren.');
+      if(!corrOk) problems.push('Richtige Antwort markieren');
+
+      // Explanation
+      const expOk = !!item.explanation;
+      setFieldState(inputs.explanation, expOk, 'err-explanation', expOk ? '' : 'Kurz-Erklärung fehlt.');
+      if(!expOk) problems.push('Kurz-Erklärung fehlt');
+
       return problems;
     }
 
-    function showPreview(){
+    function updateUI(){
       const item = buildItem();
       const problems = validate(item);
+
+      // Summary box
       if(problems.length){
-        msg.textContent = 'Bitte prüfen: ' + problems.join(' • ');
+        errorSummary.style.display = '';
+        errorList.innerHTML = problems.map(p=>`<li>${p}</li>`).join('');
+        okbar.style.display = 'none';
         statusPill.textContent = 'prüfen';
         statusPill.className = 'pill';
       } else {
-        msg.textContent = 'Alles sieht gut aus. Du kannst kopieren oder speichern.';
+        errorSummary.style.display = 'none';
+        okbar.style.display = '';
         statusPill.textContent = 'ok';
         statusPill.className = 'pill badge-ok';
       }
-      preview.textContent = JSON.stringify(item, null, 2);
-    }
 
-    function copyJSON(){
-      navigator.clipboard.writeText(preview.textContent).then(()=>{
-        msg.textContent = 'JSON in die Zwischenablage kopiert.';
-      }).catch(()=>{
-        msg.textContent = 'Kopieren nicht möglich. Bitte manuell markieren und kopieren.';
-      });
+      // Buttons
+      el('saveBtn').disabled = problems.length>0;
+      el('addBatchBtn').disabled = problems.length>0;
+
+      // Preview
+      // correctIndex: set to 0 in JSON only, if none selected we keep -1 but prevent saving anyway
+      const safe = { ...item, correctIndex: item.correctIndex<0?0:item.correctIndex };
+      preview.textContent = JSON.stringify(safe, null, 2);
     }
 
     function download(filename, text){
@@ -227,26 +298,21 @@
       setTimeout(()=>URL.revokeObjectURL(url), 500);
     }
 
-    function downloadOne(){
-      try{
-        const item = JSON.parse(preview.textContent);
-        const safeTopic = (item.topic && item.topic[0]) ? item.topic[0] : 'Allgemein';
-        const dt = new Date();
-        const stamp = dt.toISOString().slice(0,10);
-        download(`frage_${safeTopic}_${stamp}.json`, JSON.stringify(item, null, 2));
-        msg.textContent = 'Eintrag als JSON gespeichert.';
-      }catch(e){
-        msg.textContent = 'Vorschau ist ungültig.';
-      }
+    function saveOne(){
+      const item = buildItem();
+      const problems = validate(item);
+      if(problems.length){ msg.textContent = 'Noch nicht gespeichert: ' + problems.join(' • '); return; }
+      const safeTopic = (item.topic && item.topic[0]) ? item.topic[0] : 'Allgemein';
+      const dt = new Date();
+      const stamp = dt.toISOString().slice(0,10);
+      download(`frage_${safeTopic}_${stamp}.json`, JSON.stringify(item, null, 2));
+      msg.textContent = 'Eintrag als JSON gespeichert.';
     }
 
     function addToBatch(){
       const item = buildItem();
       const problems = validate(item);
-      if(problems.length){
-        msg.textContent = 'Nicht hinzugefügt: ' + problems.join(' • ');
-        return;
-      }
+      if(problems.length){ msg.textContent = 'Nicht hinzugefügt: ' + problems.join(' • '); return; }
       batch.push(item);
       renderBatch();
       msg.textContent = 'Zur Sammelliste hinzugefügt.';
@@ -279,7 +345,7 @@
     function resetForm(){
       for(const k of ['author','question','opt0','opt1','opt2','opt3','explanation']) inputs[k].value='';
       const r = document.querySelector('input[name="correct"]:checked'); if(r) r.checked=false;
-      showPreview();
+      updateUI();
     }
 
     function escapeHtml(s){
@@ -287,12 +353,13 @@
     }
 
     // Buttons
-    el('previewBtn').addEventListener('click', showPreview);
-    el('copyBtn').addEventListener('click', copyJSON);
-    el('downloadOneBtn').addEventListener('click', downloadOne);
+    el('saveBtn').addEventListener('click', saveOne);
     el('addBatchBtn').addEventListener('click', addToBatch);
     el('exportBatchBtn').addEventListener('click', exportBatch);
     el('resetBtn').addEventListener('click', resetForm);
+    el('copyBtn').addEventListener('click', ()=>{
+      navigator.clipboard.writeText(preview.textContent).then(()=>{ msg.textContent='JSON kopiert.'; }).catch(()=>{ msg.textContent='Kopieren nicht möglich.'; });
+    });
 
     // Batch actions (delegate)
     batchList.addEventListener('click', (e)=>{
@@ -313,20 +380,20 @@
       inputs.opt3.value = 'Histidin';
       document.querySelector('input[name="correct"][value="1"]').checked = true;
       inputs.explanation.value = 'Cystein kann über seine Thiolgruppe (–SH) Disulfidbindungen bilden, die die Proteinstruktur stabilisieren.';
-      showPreview();
+      updateUI();
     });
 
     el('howtoBtn').addEventListener('click', ()=>{
       inputs.explanation.value = 'Kurz begründen, warum die korrekte Antwort stimmt (z. B. Mechanismus, Strukturmerkmal, klinischer Bezug). 1–3 Sätze genügen.';
-      showPreview();
+      updateUI();
     });
 
-    // Auto‑Preview on input (debounced)
+    // Auto‑Preview & Validierung on input (debounced)
     let t;
-    document.addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(showPreview, 180); });
+    document.addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(updateUI, 120); });
 
     // Init
-    showPreview();
+    updateUI();
   </script>
 </body>
 </html>
